@@ -43,7 +43,11 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
              alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
   class(lr) <- "logistic_regression"
-  lr <- run(lr)
+  # Run optimization
+  if      (method=="BFGS")   beta <- optim(par=start, fn=costfunc, method=method)$par
+  else if (method=="GA")     beta <- grad_ascent(lr)
+  else if (method=="NEWTON") beta <- newton_method(lr)
+
   return(lr)
 }
 
@@ -119,26 +123,6 @@ newton_method.logistic_regression <- function(lr){
     }
   }
   return(beta)
-}
-
-
-#' Runs the optimization for logistic regression
-#' Notice that this method **does not modify the instance in place**, it just
-#' returns an equal copy, whose `beta` field has been modified to contain the optimal
-#' vector of coefficients.
-#'
-#' @param lr Instance of class \code{\link{logistic_regression}}.
-#'
-#' @return Copy of instance of class \code{\link{logistic_regression}} with optimal field `beta`.
-#' @export
-#'
-#' @examples
-run.logistic_regression <- function(lr){
-  # Use selected method for selected cost function
-  if      (lr$method=="BFGS")   lr$beta <- optim(par=lr$start, fn=lr$costfunc, method=lr$method)$par
-  else if (lr$method=="GA")     lr$beta <- grad_ascent(lr$start, lr$niter, lr$gamma, lr$cost, lr$sigmab)
-  else if (lr$method=="NEWTON") lr$beta <- newton_method(lr$start, lr$niter, lr$alpha, lr$cost, lr$sigmab)
-  return(lr)
 }
 
 
