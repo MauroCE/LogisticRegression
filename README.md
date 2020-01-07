@@ -1,3 +1,5 @@
+# Base R Implementation of Logistic Regression with Regularization
+
 This is a very simple package containing base R code for Logistic Regression. It implements binary logistic regression where
 the optimization is performed for two cost functions:
 
