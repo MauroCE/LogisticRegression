@@ -42,12 +42,12 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   # S3 object creation
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
              alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
-  class(lr) <- "logistic_regression"
   # Run optimization
   if      (method=="BFGS")   lr$beta <- optim(par=start, fn=costfunc, method=method)$par
   else if (method=="GA")     lr$beta <- grad_ascent(lr)
   else if (method=="NEWTON") lr$beta <- newton_method(lr)
 
+  class(lr) <- "logistic_regression"
   return(lr)
 }
 
@@ -69,17 +69,7 @@ print.logistic_regression <- function(x, ...){
   }
 
 
-#' Performs Gradient Ascent on a `"logistic_regression"` object.
-#' Should ideally be called internally, but can be called externally for
-#' debugging purposes. Does not change the field `beta`.
-#'
-#' @param lr Instance of class \code{\link{logistic_regression}}.
-#'
-#' @return Column vector of optimal coefficients found via gradient ascent.
-#' @export
-#'
-#' @examples
-grad_ascent.logistic_regression <- function(lr){
+grad_ascent<- function(lr){
   beta <- lr$start
   if (lr$cost=="MLE"){
     for (i in 1:lr$niter) {
@@ -94,15 +84,7 @@ grad_ascent.logistic_regression <- function(lr){
 }
 
 
-#' Performs Newton Method on a `"logistic_regression"` object to find optimal parameters.
-#'
-#' @param lr Instance of class \code{\link{logistic_regression}}.
-#'
-#' @return Column vector of coefficients optimized via Newton's method.
-#' @export
-#'
-#' @examples
-newton_method.logistic_regression <- function(lr){
+newton_method <- function(lr){
   # Learning rate is suggested at 0.1. For 1.0 standard Newton method is recovered
   beta <- lr$start
   if (lr$cost=="MLE"){
