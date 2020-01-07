@@ -43,6 +43,7 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
              alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
   class(lr) <- "logistic_regression"
+  lr <- run(lr)
   return(lr)
 }
 
