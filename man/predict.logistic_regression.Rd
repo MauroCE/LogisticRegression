@@ -2,9 +2,7 @@
 % Please edit documentation in R/logistic_regression.R
 \name{predict.logistic_regression}
 \alias{predict.logistic_regression}
-\title{Predicts labels of a test set using a 0.5 cutoff
-If \eqn{\sigma({\bf{x}}_i^{\text{test}} \beta) > 0.5} then observation \eqn{i} is assigned
-class 1. Otherwise it is assigned class 0.}
+\title{Predicts labels of a test set using a 0.5 cutoff}
 \usage{
 \method{predict}{logistic_regression}(lr, xtest)
 }
@@ -20,7 +18,6 @@ Column vector of dimension (number of test observations, 1) with a label of `0` 
 test observation.
 }
 \description{
-Predicts labels of a test set using a 0.5 cutoff
-If \eqn{\sigma({\bf{x}}_i^{\text{test}} \beta) > 0.5} then observation \eqn{i} is assigned
+If \eqn{\sigma(x_i^\top \beta) > 0.5} then observation \eqn{i} is assigned
 class 1. Otherwise it is assigned class 0.
 }

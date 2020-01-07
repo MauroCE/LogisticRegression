@@ -142,7 +142,8 @@ run.logistic_regression <- function(lr){
 
 
 #' Predicts labels of a test set using a 0.5 cutoff
-#' If \eqn{\sigma({\bf{x}}_i^{\text{test}} \beta) > 0.5} then observation \eqn{i} is assigned
+#'
+#' If \eqn{\sigma(x_i^\top \beta) > 0.5} then observation \eqn{i} is assigned
 #' class 1. Otherwise it is assigned class 0.
 #'
 #' @param lr Instance of class \code{\link{logistic_regression}}.
