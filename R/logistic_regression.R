@@ -98,7 +98,7 @@ newton_method <- function(lr){
     for (i in 1:lr$niter){
       D_k <- diag(drop(sigmoid(lr$X%*%beta)*(1 - sigmoid(lr$X%*%beta))))
       d_k <- solve(
-        lr$sigmab^2*t(lr$X)%*%D_k%*%lr$X - diag(n),
+        lr$sigmab^2*t(lr$X)%*%D_k%*%lr$X + diag(n),
         lr$alpha*(lr$sigmab^2*t(lr$X)%*%(lr$y - sigmoid(lr$X %*% beta)) - beta)
       )
       beta <- beta + d_k
