@@ -2,16 +2,22 @@
 % Please edit documentation in R/logistic_regression.R
 \name{run.logistic_regression}
 \alias{run.logistic_regression}
-\title{Runs the optimization for logistic regression}
+\title{Runs the optimization for logistic regression
+Notice that this method **does not modify the instance in place**, it just
+returns an equal copy, whose `beta` field has been modified to contain the optimal
+vector of coefficients.}
 \usage{
 \method{run}{logistic_regression}(lr)
 }
 \arguments{
-\item{lr}{}
+\item{lr}{Instance of class \code{\link{logistic_regression}}.}
 }
 \value{
-
+Copy of instance of class \code{\link{logistic_regression}} with optimal field `beta`.
 }
 \description{
 Runs the optimization for logistic regression
+Notice that this method **does not modify the instance in place**, it just
+returns an equal copy, whose `beta` field has been modified to contain the optimal
+vector of coefficients.
 }

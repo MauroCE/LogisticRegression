@@ -7,15 +7,25 @@ sigmoid <- function(x) 1.0 / (1.0 + exp(-x))
 
 #' Logistic Regression S3 Object
 #'
-#' @param X
-#' @param y
-#' @param cost
-#' @param method
-#' @param sigmab
-#' @param niter
-#' @param alpha
-#' @param gamma
-#'
+#' @param X Matrix of training examples of dimensions (number of obs, number of features + 1). The
+#' first column must be a column of 1s to fit the intercept.
+#' @param y Column vector of 0-1 training labels of dimension (number of obs, 1).
+#' @param cost String indicating which cost function to optimize. Options are "MLE" or "MAP". If "MAP" is
+#' chosen an isotropic gaussian centered at zero and with `sigmab^2 * diag(ncol(X))` as its variance-covariance
+#' matrix is placed as a prior on the coefficients. This corresponds to Ridge regularization on **all** the
+#' coefficients, including the intercept.
+#' @param method String indicating the optimization method used to optimize `cost`. If method is `BFGS` then
+#' the function `optim()` is used. Otherwise, class methods are implemented for `grad_ascent()` (performing
+#' gradient ascent) and `newton_method()`. In case they are implemented both for the `MLE` case and the `MAP`
+#' case.
+#' @param sigmab Standard deviation of the univariate gaussian distribution placed on each coordinate of the
+#' vector of coefficients. It's the inverse of the regularization parameter. Should not be zero.
+#' @param niter Number of iterations that the optimization algorithm should perform. This is passed only to
+#' `grad_ascent()` and `newton_method()`, but not to the `optim()` function.
+#' @param alpha Learning rate for `newton_method()`. Used to dump or enhance learning to avoid missing or
+#' not reaching the optimal solution. Could be merged with `gamma` but defaults are different.
+#' @param gamma Learning rate for `grad_ascent()`, used to dump or enhance learning to avoid missing or
+#' or not reaching the optimal solution.
 #' @return
 #' @export
 #'
@@ -39,10 +49,10 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
 
 #' Pretty-Print method for S3 Object `"logistic_regression"`.
 #'
-#' @param x
-#' @param ...
+#' @param x Instance of class \code{\link{logistic_regression}}.
+#' @param ... Additional arguments (not implemented yet).
 #'
-#' @return
+#' @return None. But as a side effect prints to sd.out.
 #' @export
 #'
 #' @examples
@@ -58,13 +68,9 @@ print.logistic_regression <- function(x, ...){
 #' Should ideally be called internally, but can be called externally for
 #' debugging purposes. Does not change the field `beta`.
 #'
-#' @param beta
-#' @param niter
-#' @param gamma
-#' @param cost
-#' @param sigmab
+#' @param lr Instance of class \code{\link{logistic_regression}}.
 #'
-#' @return
+#' @return Column vector of optimal coefficients found via gradient ascent.
 #' @export
 #'
 #' @examples
@@ -85,9 +91,9 @@ grad_ascent.logistic_regression <- function(lr){
 
 #' Performs Newton Method on a `"logistic_regression"` object to find optimal parameters.
 #'
-#' @param lr
+#' @param lr Instance of class \code{\link{logistic_regression}}.
 #'
-#' @return
+#' @return Column vector of coefficients optimized via Newton's method.
 #' @export
 #'
 #' @examples
@@ -97,7 +103,7 @@ newton_method.logistic_regression <- function(lr){
   if (lr$cost=="MLE"){
     for (i in 1:lr$niter){
       D_k <- diag(drop(sigmoid(lr$X%*%beta)*(1 - sigmoid(lr$X%*%beta))))
-      d_k <- solve(t(lr$X)%*%D_k %*% lr$X, alpha*t(lr$X) %*% (lr$y - sigmoid(lr$X %*% beta)))
+      d_k <- solve(t(lr$X)%*%D_k %*% lr$X, lr$alpha*t(lr$X) %*% (lr$y - sigmoid(lr$X %*% beta)))
       beta <- beta + d_k
     }
   } else if (lr$cost=="MAP"){
@@ -116,10 +122,13 @@ newton_method.logistic_regression <- function(lr){
 
 
 #' Runs the optimization for logistic regression
+#' Notice that this method **does not modify the instance in place**, it just
+#' returns an equal copy, whose `beta` field has been modified to contain the optimal
+#' vector of coefficients.
 #'
-#' @param lr
+#' @param lr Instance of class \code{\link{logistic_regression}}.
 #'
-#' @return
+#' @return Copy of instance of class \code{\link{logistic_regression}} with optimal field `beta`.
 #' @export
 #'
 #' @examples
@@ -129,4 +138,25 @@ run.logistic_regression <- function(lr){
   else if (lr$method=="GA")     lr$beta <- grad_ascent(lr$start, lr$niter, lr$gamma, lr$cost, lr$sigmab)
   else if (lr$method=="NEWTON") lr$beta <- newton_method(lr$start, lr$niter, lr$alpha, lr$cost, lr$sigmab)
   return(lr)
+}
+
+
+#' Predicts labels of a test set using a 0.5 cutoff
+#' If \eqn{\sigma({\bf{x}}_i^{\text{test}} \beta) > 0.5} then observation \eqn{i} is assigned
+#' class 1. Otherwise it is assigned class 0.
+#'
+#' @param lr Instance of class \code{\link{logistic_regression}}.
+#' @param xtest Matrix of dimension (number of test observations, number of features + 1) containing a
+#' testing observation in every row and a feature in every column. Notice that the first column must contain
+#' only 1s to fit the intercept.
+#'
+#' @return Column vector of dimension (number of test observations, 1) with a label of `0` or `1` for every
+#' test observation.
+#' @export
+#'
+#' @examples
+predict.logistic_regression <- function(lr, xtest){
+  # sigmoid gives probability of being in class 1. So will give (rounded) 1 to 1
+  # Should be enough to just check if -xtest %*% beta > 0 for a 1/2 cutoff.
+  return(round(1.0 / (1.0 + exp(-xtest %*% lr$beta))))
 }

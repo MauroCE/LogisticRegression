@@ -16,7 +16,32 @@ logistic_regression(
 )
 }
 \arguments{
-\item{gamma}{}
+\item{X}{Matrix of training examples of dimensions (number of obs, number of features + 1). The
+first column must be a column of 1s to fit the intercept.}
+
+\item{y}{Column vector of 0-1 training labels of dimension (number of obs, 1).}
+
+\item{cost}{String indicating which cost function to optimize. Options are "MLE" or "MAP". If "MAP" is
+chosen an isotropic gaussian centered at zero and with `sigmab^2 * diag(ncol(X))` as its variance-covariance
+matrix is placed as a prior on the coefficients. This corresponds to Ridge regularization on **all** the
+coefficients, including the intercept.}
+
+\item{method}{String indicating the optimization method used to optimize `cost`. If method is `BFGS` then
+the function `optim()` is used. Otherwise, class methods are implemented for `grad_ascent()` (performing
+gradient ascent) and `newton_method()`. In case they are implemented both for the `MLE` case and the `MAP`
+case.}
+
+\item{sigmab}{Standard deviation of the univariate gaussian distribution placed on each coordinate of the
+vector of coefficients. It's the inverse of the regularization parameter. Should not be zero.}
+
+\item{niter}{Number of iterations that the optimization algorithm should perform. This is passed only to
+`grad_ascent()` and `newton_method()`, but not to the `optim()` function.}
+
+\item{alpha}{Learning rate for `newton_method()`. Used to dump or enhance learning to avoid missing or
+not reaching the optimal solution. Could be merged with `gamma` but defaults are different.}
+
+\item{gamma}{Learning rate for `grad_ascent()`, used to dump or enhance learning to avoid missing or
+or not reaching the optimal solution.}
 }
 \value{
 

@@ -7,10 +7,10 @@
 \method{newton_method}{logistic_regression}(lr)
 }
 \arguments{
-\item{lr}{}
+\item{lr}{Instance of class \code{\link{logistic_regression}}.}
 }
 \value{
-
+Column vector of coefficients optimized via Newton's method.
 }
 \description{
 Performs Newton Method on a `"logistic_regression"` object to find optimal parameters.

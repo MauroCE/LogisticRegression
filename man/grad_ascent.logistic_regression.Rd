@@ -9,10 +9,10 @@ debugging purposes. Does not change the field `beta`.}
 \method{grad_ascent}{logistic_regression}(lr)
 }
 \arguments{
-\item{sigmab}{}
+\item{lr}{Instance of class \code{\link{logistic_regression}}.}
 }
 \value{
-
+Column vector of optimal coefficients found via gradient ascent.
 }
 \description{
 Performs Gradient Ascent on a `"logistic_regression"` object.

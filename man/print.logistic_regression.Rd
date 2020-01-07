@@ -7,10 +7,12 @@
 \method{print}{logistic_regression}(x, ...)
 }
 \arguments{
-\item{...}{}
+\item{x}{Instance of class \code{\link{logistic_regression}}.}
+
+\item{...}{Additional arguments (not implemented yet).}
 }
 \value{
-
+None. But as a side effect prints to sd.out.
 }
 \description{
 Pretty-Print method for S3 Object `"logistic_regression"`.
