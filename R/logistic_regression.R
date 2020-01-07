@@ -44,9 +44,9 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
              alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
   class(lr) <- "logistic_regression"
   # Run optimization
-  if      (method=="BFGS")   beta <- optim(par=start, fn=costfunc, method=method)$par
-  else if (method=="GA")     beta <- grad_ascent(lr)
-  else if (method=="NEWTON") beta <- newton_method(lr)
+  if      (method=="BFGS")   lr$beta <- optim(par=start, fn=costfunc, method=method)$par
+  else if (method=="GA")     lr$beta <- grad_ascent(lr)
+  else if (method=="NEWTON") lr$beta <- newton_method(lr)
 
   return(lr)
 }
