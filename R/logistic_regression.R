@@ -43,14 +43,15 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
              alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL, hessian=NULL)
   # Run optimization
-  if      (method=="BFGS") {
+  if (method=="BFGS") {
     result <- optim(par=start, fn=costfunc, method=method, hessian=TRUE)
     lr$beta    <- result$par
     lr$hessian <- result$hessian # to be used in other portfolios
+  } else if (method=="GA") {
+    lr$beta <- grad_ascent(lr)
+  } else if (method=="NEWTON") {
+    lr$beta <- newton_method(lr)
   }
-  else if (method=="GA")     lr$beta <- grad_ascent(lr)
-  else if (method=="NEWTON") lr$beta <- newton_method(lr)
-
   class(lr) <- "logistic_regression"
   return(lr)
 }
