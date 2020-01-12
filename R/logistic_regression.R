@@ -1,9 +1,7 @@
 run <- function(lr) UseMethod("run")
 grad_ascent <- function(lr) UseMethod("grad_ascent")
 newton_method <- function(lr) UseMethod("newton_method")
-
-# TODO: Put this somewhere else. CBA at 3:30am
-sigmoid <- function(x) 1.0 / (1.0 + exp(-x))
+sigmoid <- function(lr) UseMethod("sigmoid")
 
 #' Logistic Regression S3 Object
 #'
@@ -79,6 +77,8 @@ print.logistic_regression <- function(x, ...){
     cat("Solution:             ", x$beta, "\n")
   }
 
+
+sigmoid <- function(x) 1.0 / (1.0 + exp(-x))
 
 grad_ascent<- function(lr){
   beta <- lr$start
