@@ -41,9 +41,13 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   else if (cost == "MAP") costfunc <- map_cost
   # S3 object creation
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
-             alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
+             alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL, hessian=NULL)
   # Run optimization
-  if      (method=="BFGS")   lr$beta <- optim(par=start, fn=costfunc, method=method)$par
+  if      (method=="BFGS") {
+    result <- optim(par=start, fn=costfunc, method=method)
+    lr$beta    <- result$par
+    lr$hessian <- result$hessian
+  }
   else if (method=="GA")     lr$beta <- grad_ascent(lr)
   else if (method=="NEWTON") lr$beta <- newton_method(lr)
 
