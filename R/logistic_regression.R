@@ -46,7 +46,7 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   if      (method=="BFGS") {
     result <- optim(par=start, fn=costfunc, method=method)
     lr$beta    <- result$par
-    lr$hessian <- result$hessian
+    lr$hessian <- result$hessian # to be used in other portfolios
   }
   else if (method=="GA")     lr$beta <- grad_ascent(lr)
   else if (method=="NEWTON") lr$beta <- newton_method(lr)
