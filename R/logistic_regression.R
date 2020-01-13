@@ -2,6 +2,9 @@ run <- function(lr) UseMethod("run")
 grad_ascent <- function(lr) UseMethod("grad_ascent")
 newton_method <- function(lr) UseMethod("newton_method")
 
+# TODO: Put this somewhere else. CBA at 3:30am
+sigmoid <- function(x) 1.0 / (1.0 + exp(-x))
+
 #' Logistic Regression S3 Object
 #'
 #' @param X Matrix of training examples of dimensions (number of obs, number of features + 1). The
@@ -29,8 +32,6 @@ newton_method <- function(lr) UseMethod("newton_method")
 #' @examples
 logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, niter=100,
                                 alpha=0.1, gamma=0.001){
-  # since R is stupid, add logistic as a field
-  sigmoid <- function(x) 1.0 / (1.0 + exp(-x))
   start <- matrix(0, nrow=ncol(X))
   # Define cost functions
   mle_cost <- function(beta) sum(log(1 + exp((1 - 2*y) * (X %*% beta))))
@@ -40,24 +41,12 @@ logistic_regression <- function(X, y, cost="MLE", method="BFGS", sigmab=1.0, nit
   else if (cost == "MAP") costfunc <- map_cost
   # S3 object creation
   lr <- list(start=start, X=X, y=y, cost=cost, method=method, sigmab=sigmab, niter=niter,
-             alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL, hessian=NULL,
-             sigmoid=sigmoid)
-  print(method)
-  print(method=="BFGS")
+             alpha=alpha, gamma=gamma, costfunc=costfunc, beta=NULL)
   # Run optimization
-  if (method=="BFGS") {
-    result <- optim(par=start, fn=costfunc, method=method, hessian=TRUE)
-    lr$beta    <- result$par
-    lr$hessian <- result$hessian # to be used in other portfolios
-    print(lr$hessian)
-    print(lr$beta)
-  } else if (method=="GA") {
-    lr$beta <- grad_ascent(lr)
-    print("GA")
-  } else if (method=="NEWTON") {
-    lr$beta <- newton_method(lr)
-    print("NEWTON")
-  }
+  if      (method=="BFGS")   lr$beta <- optim(par=start, fn=costfunc, method=method)$par
+  else if (method=="GA")     lr$beta <- grad_ascent(lr)
+  else if (method=="NEWTON") lr$beta <- newton_method(lr)
+
   class(lr) <- "logistic_regression"
   return(lr)
 }
@@ -79,15 +68,16 @@ print.logistic_regression <- function(x, ...){
     cat("Solution:             ", x$beta, "\n")
   }
 
+
 grad_ascent<- function(lr){
   beta <- lr$start
   if (lr$cost=="MLE"){
     for (i in 1:lr$niter) {
-      beta <- beta + lr$gamma * t(lr$X) %*% (lr$y - lr$sigmoid(lr$X %*% beta))
+      beta <- beta + lr$gamma * t(lr$X) %*% (lr$y - sigmoid(lr$X %*% beta))
     }
   } else if (lr$cost=="MAP"){
     for (i in 1:lr$niter) {
-      beta <- beta + lr$gamma*(lr$sigmab^2*t(lr$X) %*% (lr$y - lr$sigmoid(lr$X %*% beta)) - beta)
+      beta <- beta + lr$gamma*(lr$sigmab^2*t(lr$X) %*% (lr$y - sigmoid(lr$X %*% beta)) - beta)
     }
   }
   return(beta)
@@ -99,17 +89,17 @@ newton_method <- function(lr){
   beta <- lr$start
   if (lr$cost=="MLE"){
     for (i in 1:lr$niter){
-      D_k <- diag(drop(lr$sigmoid(lr$X%*%beta)*(1 - lr$sigmoid(lr$X%*%beta))))
-      d_k <- solve(t(lr$X)%*%D_k %*% lr$X, lr$alpha*t(lr$X) %*% (lr$y - lr$sigmoid(lr$X %*% beta)))
+      D_k <- diag(drop(sigmoid(lr$X%*%beta)*(1 - sigmoid(lr$X%*%beta))))
+      d_k <- solve(t(lr$X)%*%D_k %*% lr$X, lr$alpha*t(lr$X) %*% (lr$y - sigmoid(lr$X %*% beta)))
       beta <- beta + d_k
     }
   } else if (lr$cost=="MAP"){
     n <- ncol(lr$X)
     for (i in 1:lr$niter){
-      D_k <- diag(drop(lr$sigmoid(lr$X%*%beta)*(1 - lr$sigmoid(lr$X%*%beta))))
+      D_k <- diag(drop(sigmoid(lr$X%*%beta)*(1 - sigmoid(lr$X%*%beta))))
       d_k <- solve(
         lr$sigmab^2*t(lr$X)%*%D_k%*%lr$X + diag(n),
-        lr$alpha*(lr$sigmab^2*t(lr$X)%*%(lr$y - lr$sigmoid(lr$X %*% beta)) - beta)
+        lr$alpha*(lr$sigmab^2*t(lr$X)%*%(lr$y - sigmoid(lr$X %*% beta)) - beta)
       )
       beta <- beta + d_k
     }
